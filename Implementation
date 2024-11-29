@@ -1,0 +1,272 @@
+CREATE TABLE bundled_products (
+    productid       NUMBER NOT NULL,
+    number_of_items NUMBER,
+    valued_price    NUMBER
+);
+
+ALTER TABLE bundled_products ADD CONSTRAINT bundled_products_pk PRIMARY KEY ( productid );
+
+CREATE TABLE customer (
+    customerid    NUMBER NOT NULL,
+    name          VARCHAR2(100),
+    phone         VARCHAR2(15),
+    email         VARCHAR2(255),
+    accountstatus VARCHAR2(100),
+    address       VARCHAR2(100)
+)
+PARTITION BY HASH (customerid)
+PARTITIONS 4; -- Number of partitions
+
+
+ALTER TABLE customer ADD CONSTRAINT customer_pk PRIMARY KEY ( customerid );
+
+CREATE TABLE customer_order (
+    orderid             NUMBER NOT NULL,
+    orderdate           DATE,
+    orderstatus         VARCHAR2(50),
+    totalamount         NUMBER,
+    payment_paymentid   NUMBER NOT NULL,
+    shipping_shippingid NUMBER NOT NULL,
+    customer_customerid NUMBER NOT NULL
+);
+
+CREATE UNIQUE INDEX order__idx ON
+    customer_order (
+        payment_paymentid
+    ASC );
+
+CREATE UNIQUE INDEX order__idxv1 ON
+    customer_order (
+        shipping_shippingid
+    ASC );
+
+ALTER TABLE customer_order ADD CONSTRAINT order_pk PRIMARY KEY ( orderid );
+
+CREATE TABLE customized_product (
+    productid             NUMBER NOT NULL,
+    customization_details VARCHAR2(200),
+    leadtime              NUMBER,
+    additionalcost        NUMBER
+);
+
+ALTER TABLE customized_product ADD CONSTRAINT customized_product_pk PRIMARY KEY ( productid );
+
+CREATE TABLE employee (
+    employeeid         NUMBER NOT NULL,
+    name               VARCHAR2(100),
+    role               VARCHAR2(100),
+    "Number"           NUMBER,
+    address            VARCHAR2(250),
+    email              VARCHAR2(255),
+    salary             NUMBER,
+    manager_employeeid NUMBER NOT NULL
+);
+
+ALTER TABLE employee ADD CONSTRAINT employee_pk PRIMARY KEY ( employeeid );
+
+CREATE TABLE inventory (
+    inventoryid       NUMBER NOT NULL,
+    productid         NUMBER,
+    warehouselocation VARCHAR2(200),
+    stocklevel        NUMBER,
+    lastupdate        DATE,
+    product_productid NUMBER NOT NULL
+);
+
+ALTER TABLE inventory ADD CONSTRAINT inventory_pk PRIMARY KEY ( inventoryid );
+
+CREATE TABLE it (
+    employeeid          NUMBER NOT NULL,
+    certificates        VARCHAR2(200),
+    years_of_experience NUMBER
+);
+
+ALTER TABLE it ADD CONSTRAINT it_pk PRIMARY KEY ( employeeid );
+
+CREATE TABLE manager (
+    employeeid          NUMBER NOT NULL,
+    yearsenrolled       NUMBER,
+    certificates        VARCHAR2(200),
+    years_of_experience NUMBER
+);
+
+ALTER TABLE manager ADD CONSTRAINT manager_pk PRIMARY KEY ( employeeid );
+
+CREATE TABLE payment (
+    paymentid     NUMBER NOT NULL,
+    paymentstatus VARCHAR2(50),
+    paymentdate   DATE,
+    amount        NUMBER,
+    order_orderid NUMBER NOT NULL
+);
+
+CREATE UNIQUE INDEX payment__idx ON
+    payment (
+        order_orderid
+    ASC );
+
+ALTER TABLE payment ADD CONSTRAINT payment_pk PRIMARY KEY ( paymentid );
+
+CREATE TABLE product (
+    productid           NUMBER NOT NULL,
+    productname         VARCHAR2(150),
+    productdescription  VARCHAR2(200),
+    producttype         VARCHAR2(50),
+    price               NUMBER,
+    stocklevel          NUMBER,
+    supplier_supplierid NUMBER NOT NULL
+)
+PARTITION BY LIST (producttype) (
+    PARTITION electronics VALUES ('Electronics'),
+    PARTITION clothing VALUES ('Clothing'),
+    PARTITION furniture VALUES ('Furniture'),
+    PARTITION others VALUES (DEFAULT) -- Catch-all partition for other types
+);
+
+
+ALTER TABLE product ADD CONSTRAINT product_pk PRIMARY KEY ( productid );
+
+CREATE TABLE EmployeeOrder (
+    employee_employeeid NUMBER NOT NULL,
+    order_orderid       NUMBER NOT NULL
+);
+
+ALTER TABLE EmployeeOrder ADD CONSTRAINT EmployeeOrder_pk PRIMARY KEY ( employee_employeeid,
+                                                                  order_orderid );
+
+CREATE TABLE OrderProduct (
+    order_orderid     NUMBER NOT NULL,
+    product_productid NUMBER NOT NULL
+);
+
+ALTER TABLE OrderProduct ADD CONSTRAINT OrderProduct_pk PRIMARY KEY ( order_orderid,
+                                                                  product_productid );
+
+CREATE TABLE shipping (
+    shippingid         NUMBER NOT NULL,
+    shippingdate       DATE,
+    shippingstatus     VARCHAR2(50),
+    trackingno         NUMBER,
+    order_orderid      NUMBER NOT NULL,
+    manager_employeeid NUMBER NOT NULL
+);
+
+CREATE UNIQUE INDEX shipping__idx ON
+    shipping (
+        order_orderid
+    ASC );
+
+ALTER TABLE shipping ADD CONSTRAINT shipping_pk PRIMARY KEY ( shippingid );
+
+CREATE TABLE shistscheduling (
+    shiftid       NUMBER NOT NULL,
+    employeeid    NUMBER,
+    shiftdate     DATE,
+    starttime     DATE,
+    endtime       DATE,
+    it_employeeid NUMBER NOT NULL
+);
+
+ALTER TABLE shistscheduling ADD CONSTRAINT shistscheduling_pk PRIMARY KEY ( shiftid );
+
+CREATE TABLE supplier (
+    supplierid   NUMBER NOT NULL,
+    suppliername VARCHAR2(100),
+    email        VARCHAR2(100),
+    address      VARCHAR2(200),
+    phone        VARCHAR2(15)
+);
+
+ALTER TABLE supplier ADD CONSTRAINT supplier_pk PRIMARY KEY ( supplierid );
+
+CREATE TABLE supplies (
+    supplyid            NUMBER NOT NULL,
+    supplyname          VARCHAR2(200),
+    description         VARCHAR2(250),
+    supplierid          NUMBER,
+    unitprice           NUMBER(10, 2),
+    stocklevel          NUMBER,
+    lastupdate          DATE,
+    supplier_supplierid NUMBER NOT NULL
+);
+
+ALTER TABLE supplies ADD CONSTRAINT supplies_pk PRIMARY KEY ( supplyid );
+
+CREATE TABLE suppliesproduct (
+    productid                    NUMBER,
+    supplierid                   NUMBER,
+    quantityrequired             NUMBER,
+    cost                         NUMBER,
+    supplier_supplierid          NUMBER NOT NULL,
+    customized_product_productid NUMBER NOT NULL
+);
+
+ALTER TABLE bundled_products
+    ADD CONSTRAINT bundled_products_product_fk FOREIGN KEY ( productid )
+        REFERENCES product ( productid );
+
+ALTER TABLE customized_product
+    ADD CONSTRAINT customized_product_product_fk FOREIGN KEY ( productid )
+        REFERENCES product ( productid );
+
+ALTER TABLE employee
+    ADD CONSTRAINT employee_manager_fk FOREIGN KEY ( manager_employeeid )
+        REFERENCES manager ( employeeid );
+
+ALTER TABLE inventory
+    ADD CONSTRAINT inventory_product_fk FOREIGN KEY ( product_productid )
+        REFERENCES product ( productid );
+
+ALTER TABLE it
+    ADD CONSTRAINT it_employee_fk FOREIGN KEY ( employeeid )
+        REFERENCES employee ( employeeid );
+
+ALTER TABLE manager
+    ADD CONSTRAINT manager_employee_fk FOREIGN KEY ( employeeid )
+        REFERENCES employee ( employeeid );
+
+ALTER TABLE customer_order
+    ADD CONSTRAINT order_customer_fk FOREIGN KEY ( customer_customerid )
+        REFERENCES customer ( customerid );
+
+ALTER TABLE product
+    ADD CONSTRAINT product_supplier_fk FOREIGN KEY ( supplier_supplierid )
+        REFERENCES supplier ( supplierid );
+
+ALTER TABLE EmployeeOrder
+    ADD CONSTRAINT EmployeeOrder_employee_fk FOREIGN KEY ( employee_employeeid )
+        REFERENCES employee ( employeeid );
+
+ALTER TABLE EmployeeOrder
+    ADD CONSTRAINT EmployeeOrder_order_fk FOREIGN KEY ( order_orderid )
+        REFERENCES customer_order ( orderid );
+
+ALTER TABLE OrderProduct
+    ADD CONSTRAINT OrderProduct_order_fk FOREIGN KEY ( order_orderid )
+        REFERENCES customer_order ( orderid );
+
+ALTER TABLE OrderProduct
+    ADD CONSTRAINT OrderProduct_product_fk FOREIGN KEY ( product_productid )
+        REFERENCES product ( productid );
+
+ALTER TABLE shipping
+    ADD CONSTRAINT shipping_manager_fk FOREIGN KEY ( manager_employeeid )
+        REFERENCES manager ( employeeid );
+
+ALTER TABLE shistscheduling
+    ADD CONSTRAINT shistscheduling_it_fk FOREIGN KEY ( it_employeeid )
+        REFERENCES it ( employeeid );
+
+ALTER TABLE supplies
+    ADD CONSTRAINT supplies_supplier_fk FOREIGN KEY ( supplier_supplierid )
+        REFERENCES supplier ( supplierid );
+
+ALTER TABLE suppliesproduct
+    ADD CONSTRAINT suppprod_cust_prod_fk FOREIGN KEY ( customized_product_productid )
+        REFERENCES customized_product ( productid );
+
+ALTER TABLE suppliesproduct
+    ADD CONSTRAINT suppliesproduct_supplier_fk FOREIGN KEY ( supplier_supplierid )
+        REFERENCES supplier(supplierid);
+
+
