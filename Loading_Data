@@ -1,0 +1,308 @@
+CREATE TABLE Product_ext (
+    ProductID NUMBER,
+    ProductName VARCHAR2(50),
+    ProductDescription VARCHAR2(500),
+    ProductType VARCHAR2(50),
+    Price NUMBER,
+    StockLevel NUMBER,
+    SupplierID NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('product.csv') -- Name of your file
+);
+
+
+
+CREATE TABLE Bundled_Product_ext (
+    Number_Of_Items NUMBER,
+    Valued_Price NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('Bundled_Product.csv') -- Name of your file
+);
+
+
+CREATE TABLE Customized_Product_ext (
+    Customization_Details VARCHAR2(200),
+    LeadTime NUMBER,
+    AdditionalCost NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('Customized_Product.csv') -- Name of your file
+);
+
+
+CREATE TABLE Inventory_ext (
+    InventoryID NUMBER,
+    ProductID NUMBER,
+    WarehouseLocation VARCHAR2(200),
+    StockLevel NUMBER,
+    LastUpdated DATE
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('inventory.csv') -- Name of your file
+);
+
+CREATE TABLE Supplier_ext (
+    SupplierID NUMBER,
+    SupplierName VARCHAR2(100),
+    Email VARCHAR2(100),
+    Address VARCHAR2(200),
+    Phone VARCHAR2(15)
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('supplier.csv') -- Name of your file
+);
+
+
+CREATE TABLE Supplier_Product_ext (
+    ProductID NUMBER,
+    SupplierID NUMBER,
+    QuantityRequired NUMBER,
+    Cost NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('Supplier_Product.csv') -- Name of your file
+);
+
+
+
+CREATE TABLE Customer_ext (
+    CustomerID NUMBER,
+    Name VARCHAR2(100),
+    Phone VARCHAR2(15),
+    AccountStatus VARCHAR2(100),
+    Email VARCHAR2(100),
+    Address VARCHAR2(100)
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('customer.csv') -- Name of your file
+);
+
+
+CREATE TABLE Order_ext (
+    OrderID NUMBER,
+    OrderDate DATE,
+    OrderStatus VARCHAR2(50),
+    TotalAmount NUMBER,
+    PaymentID NUMBER,
+    ShippingID NUMBER,
+    CustomerID NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('order.csv') -- Name of your file
+);
+
+
+CREATE TABLE Payment_ext (
+    PaymentID NUMBER,
+    PaymentStatus VARCHAR2(50),
+    PaymentDate DATE,
+    Amount NUMBER,
+    OrderID NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('payment.csv') -- Name of your file
+);
+
+
+CREATE TABLE Shipping_ext (
+    ShippingID NUMBER,
+    ShippingDate DATE,
+    ShippingStatus VARCHAR2(50),
+    TrackingNo VARCHAR2(20),
+    OrderID NUMBER,
+    EmployeeID NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('shipping.csv') -- Name of your file
+);
+
+CREATE TABLE Employee_ext (
+    EmployeeID NUMBER,
+    Name VARCHAR2(100),
+    Role VARCHAR2(100),
+    NIN VARCHAR2(15),
+    Address VARCHAR2(200),
+    Email VARCHAR2(100),
+    Salary NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('employee.csv') -- Name of your file
+);
+
+
+CREATE TABLE IT_ext (
+    Certificates VARCHAR2(200),
+    Years_Of_Experience NUMBER
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('it.csv') -- Name of your file
+);
+
+CREATE TABLE ShiftScheduling_ext (
+    ShiftID NUMBER,
+    EmployeeID NUMBER,
+    ShiftDate DATE,
+    StartTime DATE,
+    EndTime DATE
+)
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY your_directory
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        FIELDS TERMINATED BY ' '  -- Space-separated
+        MISSING FIELD VALUES ARE NULL
+    )
+    LOCATION ('ShiftScheduling.csv') -- Name of your file
+);
+
+INSERT INTO Product (ProductID, ProductName, ProductDescription, ProductType, Price, StockLevel, Supplier_SupplierID)
+SELECT ProductID, ProductName, ProductDescription, ProductType, Price, StockLevel, SupplierID
+FROM Product_ext;
+
+INSERT INTO bundled_products (productid, number_of_items, valued_price)
+SELECT productid, number_of_items, valued_price
+FROM bundled_products_ext;
+
+INSERT INTO customer (customerid, name, phone, email, accountstatus, address)
+SELECT customerid, name, phone, email, accountstatus, address
+FROM customer_ext;
+
+INSERT INTO customer_order (orderid, orderdate, orderstatus, totalamount, payment_paymentid, shipping_shippingid, customer_customerid)
+SELECT orderid, orderdate, orderstatus, totalamount, payment_paymentid, shipping_shippingid, customer_customerid
+FROM customer_order_ext;
+
+INSERT INTO customized_product (productid, customization_details, leadtime, additionalcost)
+SELECT productid, customization_details, leadtime, additionalcost
+FROM customized_product_ext;
+
+INSERT INTO employee (employeeid, name, role, "Number", address, email, salary, manager_employeeid)
+SELECT employeeid, name, role, "Number", address, email, salary, manager_employeeid
+FROM employee_ext;
+
+INSERT INTO inventory (inventoryid, productid, warehouselocation, stocklevel, lastupdate, product_productid)
+SELECT inventoryid, productid, warehouselocation, stocklevel, lastupdate, product_productid
+FROM inventory_ext;
+
+INSERT INTO it (employeeid, certificates, years_of_experience)
+SELECT employeeid, certificates, years_of_experience
+FROM it_ext;
+
+INSERT INTO manager (employeeid, yearsenrolled, certificates, years_of_experience)
+SELECT employeeid, yearsenrolled, certificates, years_of_experience
+FROM manager_ext;
+
+INSERT INTO payment (paymentid, paymentstatus, paymentdate, amount, order_orderid)
+SELECT paymentid, paymentstatus, paymentdate, amount, order_orderid
+FROM payment_ext;
+
+INSERT INTO shipping (shippingid, shippingdate, shippingstatus, trackingno, order_orderid, manager_employeeid)
+SELECT shippingid, shippingdate, shippingstatus, trackingno, order_orderid, manager_employeeid
+FROM shipping_ext;
+
+INSERT INTO supplies (supplyid, supplyname, description, supplierid, unitprice, stocklevel, lastupdate, supplier_supplierid)
+SELECT supplyid, supplyname, description, supplierid, unitprice, stocklevel, lastupdate, supplier_supplierid
+FROM supplies_ext;
+
+INSERT INTO suppliesproduct (productid, supplierid, quantityrequired, cost, supplier_supplierid, customized_product_productid)
+SELECT productid, supplierid, quantityrequired, cost, supplier_supplierid, customized_product_productid
+FROM suppliesproduct_ext;
+
+INSERT INTO OrderProduct (order_orderid, product_productid)
+SELECT order_orderid, product_productid
+FROM orderproduct_ext;
+
+INSERT INTO EmployeeOrder (employee_employeeid, order_orderid)
+SELECT employee_employeeid, order_orderid
+FROM employeeorder_ext;
+
+-- Insert into ShiftScheduling
+INSERT INTO shistscheduling (shiftid, employeeid, shiftdate, starttime, endtime, it_employeeid)
+SELECT shiftid, employeeid, shiftdate, starttime, endtime, it_employeeid
+FROM shistscheduling_ext;
