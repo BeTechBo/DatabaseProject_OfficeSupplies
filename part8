@@ -1,0 +1,56 @@
+CREATE USER clerk IDENTIFIED BY TomAndJerry2024;
+
+GRANT SELECT ON ADMIN.Product TO clerk;
+GRANT SELECT ON ADMIN.Bundled_Product TO clerk;
+GRANT SELECT ON ADMIN.Customized_Product TO clerk;
+GRANT SELECT ON ADMIN.Inventory TO clerk;
+GRANT SELECT ON ADMIN.Supplier TO clerk;
+GRANT SELECT ON ADMIN.Supplier_Product TO clerk;
+GRANT SELECT ON ADMIN.Customer TO clerk;
+GRANT SELECT ON ADMIN.Order TO clerk;
+GRANT SELECT ON ADMIN.Payment TO clerk;
+GRANT SELECT ON ADMIN.Shipping TO clerk;
+GRANT SELECT ON ADMIN.Employee TO clerk;
+GRANT SELECT ON ADMIN.ShiftScheduling TO clerk;
+
+
+
+
+
+
+CREATE USER manager IDENTIFIED BY LeaderAndBoss2024;
+
+BEGIN
+   FOR t IN (
+      SELECT table_name 
+      FROM all_tables 
+      WHERE owner = 'ADMIN' 
+        AND table_name IN ('PRODUCT', 'BUNDLED_PRODUCT', 'CUSTOMIZED_PRODUCT', 'INVENTORY', 
+                           'SUPPLIER', 'SUPPLIER_PRODUCT', 'CUSTOMER', 'ORDER', 
+                           'PAYMENT', 'SHIPPING', 'EMPLOYEE', 'SHIFT_SCHEDULING')
+   ) LOOP
+      EXECUTE IMMEDIATE 'GRANT SELECT, INSERT, UPDATE, DELETE ON ADMIN.' || t.table_name || ' TO manager';
+   END LOOP;
+END;
+/
+
+
+CREATE USER developer IDENTIFIED BY DEVdevDEV2024;
+
+GRANT CREATE SESSION TO developer;
+
+BEGIN
+   FOR t IN (
+      SELECT table_name 
+      FROM all_tables 
+      WHERE owner = 'ADMIN' 
+        AND table_name IN ('PRODUCT', 'BUNDLED_PRODUCT', 'CUSTOMIZED_PRODUCT', 'INVENTORY', 
+                           'SUPPLIER', 'SUPPLIER_PRODUCT', 'CUSTOMER', 'ORDER', 
+                           'PAYMENT', 'SHIPPING', 'EMPLOYEE', 'SHIFT_SCHEDULING')
+   ) LOOP
+      EXECUTE IMMEDIATE 'GRANT SELECT, INSERT, UPDATE, DELETE ON ADMIN.' || t.table_name || ' TO developer';
+   END LOOP;
+END;
+/
+
+GRANT CREATE TABLE, CREATE VIEW, CREATE PROCEDURE, CREATE SEQUENCE, CREATE TRIGGER TO developer;
